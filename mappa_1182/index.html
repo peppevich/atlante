@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Mappa storica XIII secolo</title>
+
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=IM+Fell+English&display=swap" rel="stylesheet">
+
+  <style>
+    body { margin: 0; }
+    #map { width: 100vw; height: 100vh; background: #f4f1ea; }
+  #timeline-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 35%;
+  height: 100%;
+  background: #f3ecd8; /* pergamena */
+  border-left: 6px solid #8b5e3c;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.35);
+  padding: 2rem 2.5rem;
+  overflow-y: auto;
+  display: none;
+  z-index: 1000;
+
+  font-family: 'IM fell english', serif;
+  color: #3b2a1a;
+}
+
+#timeline-panel h1,
+#timeline-panel h2,
+#timeline-panel h3 {
+  font-family: 'Book Antiqua', Georgia, serif;
+  color: #5a3a1b;
+  margin-top: 1.5rem;
+}
+
+#timeline-panel h2 {
+  border-bottom: 2px solid #8b5e3c;
+  padding-bottom: 0.3rem;
+}
+
+#timeline-panel p {
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+#timeline-panel a {
+  color: #6b2e1a;
+  text-decoration: none;
+  border-bottom: 1px dotted #6b2e1a;
+}
+
+#timeline-panel a:hover {
+  color: #8b0000;
+  border-bottom-style: solid;
+}
+#timeline-panel {
+  background-image: url('pergamena.jpg');
+  background-size: cover;
+}
+
+
+#close-panel {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #5a3a1b;
+}
+
+#close-panel:hover {
+  color: #8b0000;
+}
+
+#map-nav {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 3000;
+  display: flex;
+  gap: 15px;
+}
+
+#map-nav img {
+  width: 60px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: 0.2s;
+}
+
+#map-nav img:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+#timeline-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background: #2c1b10;
+  border-top: 4px solid #8b5e3c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  z-index: 2000;
+}
+
+.era {
+  color: #f3e2c7;
+  font-family: 'Book Antiqua', Georgia, serif;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border: 2px solid #8b5e3c;
+  background: #3b2314;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.era:hover {
+  background: #8b5e3c;
+  color: #2c1b10;
+  transform: scale(1.1);
+}
+
+  </style>
+</head>
+<body>
+
+<div id="map-nav">
+  <img src="../icons/indietro.png" id="prev-map" title="Vai indietro">
+  <img src="../icons/avanti.png" id="next-map" title="Vai avanti">
+</div>
+
+<div id="map"></div>
+<div id="timeline-bar">
+  <div class="era" onclick="goTo('mappa_1182')">1182-1214</div>
+  <div class="era" onclick="goTo('mappa_1218')">1214-1266</div>
+</div>
+
+
+<div id="timeline-panel">
+  <button id="close-panel">✕</button>
+  <div id="timeline-content"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const imageWidth = 1920;   // CAMBIA
+  const imageHeight = 1080;  // CAMBIA
+
+  const bounds = [[0, 0], [imageHeight, imageWidth]];
+
+  const map = L.map('map', {
+    crs: L.CRS.Simple,
+    minZoom: -2,
+    maxZoom: 2
+  });
+
+  L.imageOverlay('mappa_1182.jpg', bounds).addTo(map);
+  map.fitBounds(bounds);
+  map.on('click', function(e) {
+  console.log(e.latlng);
+});
+const battleIcon = L.icon({
+  iconUrl: 'battaglia_med.png',
+  iconSize: [20, 20],
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -16]
+});
+const battaglie = L.layerGroup().addTo(map);
+
+L.marker([487, 949], { icon: battleIcon })
+  .addTo(battaglie)
+  .bindPopup(`
+    <strong>Battaglia di Bouvines</strong><br>
+    27 luglio 1214<br>
+    <a href="https://www.lacooltura.com/2015/07/bouvines-1214-battaglia-medioevo" target="_blank" rel="noopener noreferrer"
+>
+      Approfondisci
+      </a>
+  `);
+
+  
+const peaceIcon = L.icon({
+  iconUrl: 'pace.png',
+  iconSize: [20, 20],
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -16]
+});
+const pace = L.layerGroup().addTo(map);
+
+L.marker([332, 1126], { icon: peaceIcon })
+  .addTo(pace)
+  .bindPopup(`
+    <strong>Pace di Costanza</strong><br>
+    25 giugno 1183<br>
+    <a href="https://libropiuweb.mondadorieducation.it/media/libropiu/contenuti/120900035469_calvani_spaziostoria/strumenti/db_fonti_documenti/pdf/Pace_Costanza.pdf" target="_blank" rel="noopener noreferrer"
+>
+      Approfondisci
+      </a>
+  `);
+
+function openTimeline(url) {
+  fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('timeline-content').innerHTML = html;
+      document.getElementById('timeline-panel').style.display = 'block';
+    })
+    .catch(err => console.error(err));
+}
+const territori = [
+  {
+    nome: "Inghilterra",
+    coords: [
+      [627, 804],
+      [539, 804],
+      [533, 766],
+      [471, 742],
+      [505, 900],
+      [563, 916],
+      [561, 878],
+      [665, 820]
+    ],
+    timeline: "timelines/inghilterra.html"
+  },
+  {
+    nome: "Francia",
+    coords: [
+      [483, 908],
+      [349, 948],
+      [353, 998],
+      [521, 944]
+    ],
+    timeline: "timelines/francia.html"
+  },
+    {
+    nome: "Impero Occidentale",
+    coords: [
+      [409, 1000],
+      [387, 1028],
+      [267, 1000],
+      [287, 1116],
+      [371, 1258],
+      [595, 1220],
+      [565, 1018]
+    ],
+    timeline: "timelines/imperoger.html"
+  },
+  {
+    nome: "Regno di Sicilia",
+    coords: [
+      [188, 1224],
+      [120, 1280],
+      [92, 1208],
+      [64, 1256],
+      [168, 1344],
+      [216, 1244]
+    ],
+    timeline: "timelines/sicilia.html"
+  }
+];
+const invisibleAreaStyle = {
+  color: 'transparent',
+  fillColor: 'transparent',
+  fillOpacity: 0,
+  weight: 0
+};
+
+territori.forEach(t => {
+  L.polygon(t.coords, invisibleAreaStyle)
+    .addTo(map)
+    .on('click', function () {
+      openTimeline(t.timeline);
+    });
+});
+let activeArea = null;
+
+territori.forEach(t => {
+  const area = L.polygon(t.coords, invisibleAreaStyle)
+    .addTo(map)
+    .on('click', function () {
+      if (activeArea) {
+        activeArea.setStyle(invisibleAreaStyle);
+      }
+
+      this.setStyle({
+        color: '#8b5e3c',
+        fillOpacity: 0.25
+      });
+
+      activeArea = this;
+      openTimeline(t.timeline);
+    });
+});
+document.getElementById('close-panel').onclick = function () {
+  document.getElementById('timeline-panel').style.display = 'none';
+
+  if (activeArea) {
+    activeArea.setStyle(invisibleAreaStyle);
+    activeArea = null;
+  }
+};
+
+document.getElementById("next-map").onclick = function () {
+  window.location.href = "../mappa_1218/index.html";
+};
+
+function goTo(folder) {
+  window.location.href = "../" + folder + "/index.html";
+}
+
+</script>
+
+</body>
+</html>
