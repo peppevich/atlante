@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <title>Mappa storica dopo Bouvines</title>
+  <title>Mappa storica impero carolingio</title>
 
   <link rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -132,21 +132,24 @@
   color: #2c1b10;
   transform: scale(1.1);
 }
+
   </style>
 </head>
 <body>
 
 <div id="map-nav">
-<img src="../icons/indietro.png" id="prev-map" title="Vai indietro">
-<img src="../icons/avanti.png" id="next-map" title="Vai avanti">
+  <img src="../icons/indietro.png" id="prev-map" title="Vai indietro">
+  <img src="../icons/avanti.png" id="next-map" title="Vai avanti">
 </div>
 
 <div id="map"></div>
 <div id="timeline-bar">
   <div class="era" onclick="goTo('mappa_814')">768-814</div>
+  <div class="era" onclick="goTo('mappa_904')">814-962</div>
   <div class="era" onclick="goTo('mappa_1182')">1182-1214</div>
   <div class="era" onclick="goTo('mappa_1218')">1214-1266</div>
 </div>
+
 
 <div id="timeline-panel">
   <button id="close-panel">✕</button>
@@ -166,44 +169,55 @@
     maxZoom: 2
   });
 
-  L.imageOverlay('mappa_1218.png', bounds).addTo(map);
+  L.imageOverlay('mappa_814.png', bounds).addTo(map);
   map.fitBounds(bounds);
   map.on('click', function(e) {
   console.log(e.latlng);
 });
-const lawIcon = L.icon({
-  iconUrl: '../icons/legge.png',
+const battleIcon = L.icon({
+  iconUrl: '../icons/battaglia_med.png',
   iconSize: [20, 20],
   iconAnchor: [16, 16],
   popupAnchor: [0, -16]
 });
-const leggi = L.layerGroup().addTo(map);
+const battaglie = L.layerGroup().addTo(map);
 
-L.marker([531, 861], { icon: lawIcon })
-  .addTo(leggi)
+L.marker([326, 1127], { icon: battleIcon })
+  .addTo(battaglie)
   .bindPopup(`
-    <strong>Magna Charta</strong><br>
-    15 giugno 1215<br>
-    <a href="https://www.festivaldelmedioevo.it/la-magna-charta/" target="_blank" rel="noopener noreferrer"
+    <strong>Assedio di Pavia</strong><br>
+    5 giugno 774<br>
+    <a href="https://www.paviaedintorni.it/temi/eventi_file/eventi_bellici_file/774_fine_longobardi_file/774_fine_longobardi.htm" target="_blank" rel="noopener noreferrer"
 >
       Approfondisci
       </a>
   `);
 
-  const crownIcon = L.icon({
+L.marker([244, 841], { icon: battleIcon })
+  .addTo(battaglie)
+  .bindPopup(`
+    <strong>Rotta di Roncisvalle</strong><br>
+    15 agosto 778<br>
+    <a href="https://www.youtube.com/watch?v=Ve27Ds1n6p0" target="_blank" rel="noopener noreferrer"
+>
+      Approfondisci
+      </a>
+  `);
+
+const crownIcon = L.icon({
   iconUrl: '../icons/corona.png',
   iconSize: [20, 20],
   iconAnchor: [16, 16],
   popupAnchor: [0, -16]
 });
-const incoronazioni = L.layerGroup().addTo(map);
+const corona = L.layerGroup().addTo(map);
 
-L.marker([110, 1198], { icon: crownIcon })
-  .addTo(incoronazioni)
+L.marker([226, 1190], { icon: crownIcon })
+  .addTo(corona)
   .bindPopup(`
-    <strong>Incoronazione di Federico II</strong><br>
-    22 novembre 1220<br>
-    <a href="https://www.youtube.com/watch?v=NuWpp9lphaU" target="_blank" rel="noopener noreferrer"
+    <strong>Incoronazione imperiale</strong><br>
+    25 dicembre 800<br>
+    <a href="https://mediumaevumweb.wordpress.com/tag/rinascita-carolingia/" target="_blank" rel="noopener noreferrer"
 >
       Approfondisci
       </a>
@@ -220,43 +234,51 @@ function openTimeline(url) {
 }
 const territori = [
   {
-    nome: "Inghilterra",
+    nome: "al-Andalus",
     coords: [
-      [627, 804],
-      [539, 804],
-      [533, 766],
-      [471, 742],
-      [505, 900],
-      [563, 916],
-      [561, 878],
-      [665, 820]
+      [196, 672],
+      [92, 654],
+      [52, 736],
+      [116, 882],
+      [220, 934],
+      [240, 792]
     ],
-    timeline: "timelines/inghilterra.html"
+    timeline: "timelines/spagna.html"
   },
   {
-    nome: "Francia",
+    nome: "Papato",
     coords: [
-      [451, 838],
-      [407, 848],
-      [373, 836],
-      [343, 860],
-      [321, 976],
-      [389, 1000],
-      [467, 976],
-      [525, 946],
-      [459, 852]
+      [318, 1174],
+      [232, 1156],
+      [212, 1208],
+      [266, 1212]
     ],
-    timeline: "timelines/francia.html"
+    timeline: "timelines/papato.html"
   },
-   {
-    nome: "Impero Bizantino",
+    {
+    nome: "Impero Carolingio",
     coords: [
-      [195, 1516],
-      [137, 1524],
-      [197, 1636],
-      [219, 1566]
+      [434, 842],
+      [596, 1110],
+      [448, 1262],
+      [332, 1254],
+      [266, 966],
+      [210, 940],
+      [244, 868],
+      [426, 836]
     ],
-    timeline: "timelines/bisanzio.html"
+    timeline: "timelines/imperocar.html"
+  },
+  {
+    nome: "Impero bizantino",
+    coords: [
+      [198, 1894],
+      [70, 1730],
+      [96, 1196],
+      [198, 1302],
+      [188, 1618]
+    ],
+    timeline: "timelines/imperobiz.html"
   }
 ];
 const invisibleAreaStyle = {
@@ -301,8 +323,8 @@ document.getElementById('close-panel').onclick = function () {
   }
 };
 
-document.getElementById("prev-map").onclick = function () {
-  window.location.href = "../mappa_1182/index.html";
+document.getElementById("next-map").onclick = function () {
+  window.location.href = "../mappa_904/index.html";
 };
 
 function goTo(folder) {

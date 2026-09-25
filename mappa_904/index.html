@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Mappa storica tra Carlo e Ottone</title>
+
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=IM+Fell+English&display=swap" rel="stylesheet">
+
+  <style>
+    body { margin: 0; }
+    #map { width: 100vw; height: 100vh; background: #f4f1ea; }
+  #timeline-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 35%;
+  height: 100%;
+  background: #f3ecd8; /* pergamena */
+  border-left: 6px solid #8b5e3c;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.35);
+  padding: 2rem 2.5rem;
+  overflow-y: auto;
+  display: none;
+  z-index: 1000;
+
+  font-family: 'IM fell english', serif;
+  color: #3b2a1a;
+}
+
+#timeline-panel h1,
+#timeline-panel h2,
+#timeline-panel h3 {
+  font-family: 'Book Antiqua', Georgia, serif;
+  color: #5a3a1b;
+  margin-top: 1.5rem;
+}
+
+#timeline-panel h2 {
+  border-bottom: 2px solid #8b5e3c;
+  padding-bottom: 0.3rem;
+}
+
+#timeline-panel p {
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+#timeline-panel a {
+  color: #6b2e1a;
+  text-decoration: none;
+  border-bottom: 1px dotted #6b2e1a;
+}
+
+#timeline-panel a:hover {
+  color: #8b0000;
+  border-bottom-style: solid;
+}
+#timeline-panel {
+  background-image: url('pergamena.jpg');
+  background-size: cover;
+}
+
+
+#close-panel {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #5a3a1b;
+}
+
+#close-panel:hover {
+  color: #8b0000;
+}
+
+#map-nav {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 3000;
+  display: flex;
+  gap: 15px;
+}
+
+#map-nav img {
+  width: 60px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: 0.2s;
+}
+
+#map-nav img:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+#timeline-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background: #2c1b10;
+  border-top: 4px solid #8b5e3c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  z-index: 2000;
+}
+
+.era {
+  color: #f3e2c7;
+  font-family: 'Book Antiqua', Georgia, serif;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border: 2px solid #8b5e3c;
+  background: #3b2314;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.era:hover {
+  background: #8b5e3c;
+  color: #2c1b10;
+  transform: scale(1.1);
+}
+/* ================================
+   IMMAGINE NEI POPUP
+   ================================ */
+
+.popup-evento {
+  text-align: center;
+  font-family: 'IM Fell English', serif;
+}
+
+.popup-immagine {
+  margin-top: 10px;
+}
+
+.popup-immagine img {
+  width: 220px;
+  max-width: 100%;
+  cursor: zoom-in;
+  border: 2px solid #8b5e3c;
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto;
+  transition: 0.2s;
+}
+
+.popup-immagine img:hover {
+  opacity: 0.85;
+}
+
+
+/* Didascalia */
+
+.didascalia {
+  font-size: 13px;
+  font-style: italic;
+  color: #5a3a1b;
+  margin-top: 5px;
+  line-height: 1.3;
+}
+
+/* ================================
+   LIGHTBOX
+   ================================ */
+
+#image-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+
+  display: none;
+
+  justify-content: center;
+  align-items: center;
+
+  z-index: 5000;
+
+  padding: 30px;
+  box-sizing: border-box;
+
+  cursor: zoom-out;
+}
+
+#image-lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+
+  object-fit: contain;
+
+  border: 4px solid #8b5e3c;
+  box-shadow: 0 0 25px rgba(0,0,0,0.7);
+
+  cursor: default;
+}
+
+
+/* Pulsante X */
+
+#close-lightbox {
+  position: absolute;
+
+  top: 20px;
+  right: 30px;
+
+  font-size: 40px;
+
+  color: #f3e2c7;
+
+  background: none;
+  border: none;
+
+  cursor: pointer;
+
+  font-family: Georgia, serif;
+
+  z-index: 5001;
+}
+
+#close-lightbox:hover {
+  color: #ffffff;
+}
+
+
+/* Didascalia della lightbox */
+
+#lightbox-caption {
+  position: absolute;
+
+  bottom: 20px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  max-width: 80vw;
+
+  color: #f3e2c7;
+
+  font-family: 'IM Fell English', serif;
+
+  font-size: 17px;
+  font-style: italic;
+
+  text-align: center;
+}
+  </style>
+</head>
+<body>
+
+<div id="map-nav">
+  <img src="../icons/indietro.png" id="prev-map" title="Vai indietro">
+  <img src="../icons/avanti.png" id="next-map" title="Vai avanti">
+</div>
+
+<div id="map"></div>
+<div id="timeline-bar">
+  <div class="era" onclick="goTo('mappa_814')">768-814</div>
+  <div class="era" onclick="goTo('mappa_904')">814-962</div>
+  <div class="era" onclick="goTo('mappa_1182')">1182-1214</div>
+  <div class="era" onclick="goTo('mappa_1218')">1214-1266</div>
+</div>
+
+<div id="timeline-panel">
+  <button id="close-panel">✕</button>
+  <div id="timeline-content"></div>
+</div>
+
+<div id="image-lightbox">
+
+  <button id="close-lightbox">✕</button>
+
+  <img id="lightbox-image" src="" alt="">
+
+  <div id="lightbox-caption"></div>
+
+</div>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const imageWidth = 1920;   // CAMBIA
+  const imageHeight = 1080;  // CAMBIA
+
+  const bounds = [[0, 0], [imageHeight, imageWidth]];
+
+  const map = L.map('map', {
+    crs: L.CRS.Simple,
+    minZoom: -2,
+    maxZoom: 2
+  });
+
+  L.imageOverlay('mappa_904.png', bounds).addTo(map);
+  map.fitBounds(bounds);
+  map.on('click', function(e) {
+  console.log(e.latlng);
+});
+const battleIcon = L.icon({
+  iconUrl: '../icons/battaglia_med.png',
+  iconSize: [20, 20],
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -16]
+});
+const battaglie = L.layerGroup().addTo(map);
+
+L.marker([431, 1172], { icon: battleIcon })
+  .addTo(battaglie)
+  .bindPopup(`
+    <strong>Battaglia di Lechfeld</strong><br>
+    10 agosto 955<br>
+    <a href="https://www.festivaldelmedioevo.it/lechfeld-quando-ottone-salvo-leuropa-dagli-ungari/" target="_blank" rel="noopener noreferrer"
+>
+      Approfondisci
+      </a>
+  `);
+
+const crownIcon = L.icon({
+  iconUrl: '../icons/corona.png',
+  iconSize: [20, 20],
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -16]
+});
+const corona = L.layerGroup().addTo(map);
+
+L.marker([226, 1190], { icon: crownIcon })
+  .addTo(corona)
+  .bindPopup(`
+    <strong>Incoronazione imperiale</strong><br>
+    2 febbraio 962<br>
+    <a href="https://www.youtube.com/watch?v=cwRaLwqcYvM" target="_blank" rel="noopener noreferrer"
+>
+      Approfondisci
+      </a>
+  `);
+  const lawIcon = L.icon({
+  iconUrl: '../icons/legge.png',
+  iconSize: [20, 20],
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -16]
+});
+const legge = L.layerGroup().addTo(map);
+
+L.marker([470, 924], { icon: lawIcon })
+  .addTo(legge)
+  .bindPopup(`
+    <strong>Capitolare di Quierzy</strong><br>
+    14 giugno 877<br>
+    <a href="https://www.meta-apprendisti.it/mod/data/view.php?d=9&mode=single&page=3" target="_blank" rel="noopener noreferrer"
+>
+      Approfondisci
+      </a>
+  `);
+const peaceIcon = L.icon({
+  iconUrl: '../icons/pace.png',
+  iconSize: [20, 20],
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -16]
+});
+const pace = L.layerGroup().addTo(map);
+  L.marker([472, 978], { icon: peaceIcon })
+  .addTo(pace)
+  .bindPopup(`
+    <strong>Trattato di Verdun</strong><br>
+    <div class="popup-immagine"> <img src="immagini/mappa_843.png" alt=""> <div class="didascalia"> L'Europa dopo il trattato. </div>
+    10 agosto 843<br>
+    <a href="https://it.scribd.com/document/551149395/Giuramento-di-Strasburgo" target="_blank" rel="noopener noreferrer"
+>
+      Approfondisci
+      </a>
+  `);
+const cityIcon = L.icon({
+  iconUrl: '../icons/castello.png',
+  iconSize: [20, 20],
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -16]
+});
+const city = L.layerGroup().addTo(map);
+  L.marker([457, 1684], { icon: cityIcon })
+  .addTo(city)
+  .bindPopup(`
+    <strong>Fondazione della Rus'</strong><br>
+    882<br>
+    <a href="https://it.wikipedia.org/wiki/Variaghi" target="_blank" rel="noopener noreferrer"
+>
+      Approfondisci
+      </a>
+  `);
+  L.layerGroup().addTo(map);
+  L.marker([454, 882], { icon: cityIcon })
+  .addTo(city)
+  .bindPopup(`
+    <strong>Fondazione del Ducato di Normandia</strong><br>
+    911<br>
+    <a href="https://feltrinelli.bedita.cloud/public/activities/view/8daa1294-82ee-48c9-9eb7-df34caffb188" target="_blank" rel="noopener noreferrer"
+>
+      Approfondisci
+      </a>
+  `);
+
+function openTimeline(url) {
+  fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('timeline-content').innerHTML = html;
+      document.getElementById('timeline-panel').style.display = 'block';
+    })
+    .catch(err => console.error(err));
+}
+const territori = [
+  {
+    nome: "Anglia",
+    coords: [
+      [668, 808],
+      [474, 776],
+      [510, 896],
+      [560, 908]
+    ],
+    timeline: "timelines/anglia.html"
+  },
+
+    {
+    nome: "Sacro Romano Impero",
+    coords: [
+      [548, 1004],
+      [364, 1000],
+      [336, 1264],
+      [432, 1268],
+      [432, 1204],
+      [580, 1140]
+    ],
+    timeline: "timelines/impero.html"
+  },
+  {
+    nome: "Impero bizantino",
+    coords: [
+      [198, 1894],
+      [70, 1730],
+      [96, 1196],
+      [198, 1302],
+      [188, 1618]
+    ],
+    timeline: "timelines/imperobiz.html"
+  }
+];
+const invisibleAreaStyle = {
+  color: 'transparent',
+  fillColor: 'transparent',
+  fillOpacity: 0,
+  weight: 0
+};
+
+territori.forEach(t => {
+  L.polygon(t.coords, invisibleAreaStyle)
+    .addTo(map)
+    .on('click', function () {
+      openTimeline(t.timeline);
+    });
+});
+let activeArea = null;
+
+territori.forEach(t => {
+  const area = L.polygon(t.coords, invisibleAreaStyle)
+    .addTo(map)
+    .on('click', function () {
+      if (activeArea) {
+        activeArea.setStyle(invisibleAreaStyle);
+      }
+
+      this.setStyle({
+        color: '#8b5e3c',
+        fillOpacity: 0.25
+      });
+
+      activeArea = this;
+      openTimeline(t.timeline);
+    });
+});
+document.getElementById('close-panel').onclick = function () {
+  document.getElementById('timeline-panel').style.display = 'none';
+
+  if (activeArea) {
+    activeArea.setStyle(invisibleAreaStyle);
+    activeArea = null;
+  }
+};
+
+document.getElementById("prev-map").onclick = function () {
+  window.location.href = "../mappa_814/index.html";
+};
+
+document.getElementById("next-map").onclick = function () {
+  window.location.href = "../mappa_1182/index.html";
+};
+
+function goTo(folder) {
+  window.location.href = "../" + folder + "/index.html";
+}
+
+// =====================================
+// LIGHTBOX IMMAGINI
+// =====================================
+
+const lightbox = document.getElementById('image-lightbox');
+const lightboxImage = document.getElementById('lightbox-image');
+const lightboxCaption = document.getElementById('lightbox-caption');
+const closeLightbox = document.getElementById('close-lightbox');
+
+
+// Apertura immagine
+
+document.addEventListener('click', function(e) {
+
+  if (e.target.matches('.popup-immagine img')) {
+
+    const img = e.target;
+
+    lightboxImage.src = img.src;
+    lightboxImage.alt = img.alt;
+
+    const caption = img.parentElement
+      .parentElement
+      .querySelector('.didascalia');
+
+    if (caption) {
+      lightboxCaption.textContent = caption.textContent;
+    } else {
+      lightboxCaption.textContent = '';
+    }
+
+    lightbox.style.display = 'flex';
+  }
+
+});
+
+
+// Chiusura con X
+
+closeLightbox.addEventListener('click', function(e) {
+
+  e.stopPropagation();
+
+  lightbox.style.display = 'none';
+  lightboxImage.src = '';
+
+});
+
+
+// Chiusura cliccando fuori dall'immagine
+
+lightbox.addEventListener('click', function(e) {
+
+  if (e.target === lightbox) {
+
+    lightbox.style.display = 'none';
+    lightboxImage.src = '';
+
+  }
+
+});
+
+
+// Chiusura con ESC
+
+document.addEventListener('keydown', function(e) {
+
+  if (e.key === 'Escape') {
+
+    lightbox.style.display = 'none';
+    lightboxImage.src = '';
+
+  }
+
+});
+
+</script>
+
+</body>
+</html>
